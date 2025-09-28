@@ -1,0 +1,121 @@
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on_param
+
+spring:
+  application:
+    name: number-baseball
+
+  jackson:
+    default-property-inclusion: NON_NULL
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Seoul
+
+  web:
+    cors:
+      allowed-origins: "*"
+      allowed-methods: "GET,POST,PUT,DELETE,OPTIONS"
+      allowed-headers: "*"
+      allow-credentials: false
+
+  # ??? ?? ??
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+
+  # ???? ??
+  task:
+    scheduling:
+      pool:
+        size: 2
+      thread-name-prefix: "game-scheduler-"
+
+  # WebSocket ??
+  websocket:
+    message-size-limit: 8192      # ??? ?? ?? (8KB)
+    send-time-limit: 10000        # ?? ?? ?? (10?)
+    send-buffer-size-limit: 512000 # ?? ?? ?? ?? (512KB)
+
+  # ?? ??
+  # security:
+  #   enabled: false
+
+# ?? ??
+logging:
+  level:
+    com.couple.numberbaseball: DEBUG
+    org.springframework.web: INFO
+    org.springframework.security: DEBUG
+    org.springframework.messaging: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+game:
+  room:
+    timeout-minutes: 5          # ? ???? ???? (?)
+    max-concurrent-rooms: 10    # ?? ?? ? ?? (?? ??)
+    cleanup-interval: 300000    # ? ?? ?? (???)
+  session:
+    timeout-minutes: 30         # ?? ???? (?)
+  settings:
+    default-digits: 4           # ?? ???
+    allow-zero-default: false   # ?? 0 ?? ??
+    allow-duplicate-default: false # ?? ?? ?? ??
+
+---
+# ?? ?? ????
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+logging:
+  level:
+    root: DEBUG
+    com.couple.numberbaseball: TRACE
+
+server:
+  error:
+    include-stacktrace: always
+
+# ??? ??? ??
+debug: true
+trace: false
+
+---
+# ?? ?? ????
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  # ??? CORS ??
+  web:
+    cors:
+      allowed-origins: "https://your-frontend-domain.com"
+      allow-credentials: true
+
+logging:
+  level:
+    root: WARN
+    com.couple.numberbaseball: INFO
+  file:
+    name: logs/number-baseball.log
+    max-size: 10MB
+    max-history: 30
+
+server:
+  error:
+    include-stacktrace: never
+    include-binding-errors: never
+
+# ??? ?? ??
+game:
+  room:
+    max-concurrent-rooms: 50
